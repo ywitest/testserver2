@@ -121,6 +121,26 @@
       font-size: 18px;
     }
 
+    /* CHAMPIONS CLUB ONLY */
+    .champions-label {
+      display: flex;
+      align-items: center;
+      margin: 20px 0 12px 0;
+      font-weight: 600;
+      font-size: 1.13em;
+      justify-content: flex-start;
+      /* ensures left alignment even if rest of form is centered somewhere */
+    }
+    .checkbox-large {
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      min-height: 28px;
+      margin-right: 12px;
+      accent-color: #3498db; /* matches button color; works on modern browsers */
+      /* optional: you can increase/decrease size here */
+    }
+
     @media (max-width: 600px) {
       .button-row {
         flex-direction: column;
@@ -128,6 +148,15 @@
 
       button {
         width: 100%;
+      }
+      .champions-label {
+        font-size: 1em;
+      }
+      .checkbox-large {
+        width: 22px;
+        height: 22px;
+        min-width: 22px;
+        min-height: 22px;
       }
     }
   </style>
@@ -164,9 +193,9 @@
   <label for="effectuationLeaderboard">Effectuation Leaderboard Rank (1–10):</label>
   <input type="number" id="effectuationLeaderboard" placeholder="1 - 10" min="1" max="10" />
 
-  <label>
-  <input type="checkbox" id="championsClub" />
-  Champions Club ($1,000 Bonus)
+  <label class="champions-label">
+    <input type="checkbox" id="championsClub" class="checkbox-large"/>
+    Champions Club ($1,000 Bonus)
   </label>
 
   <div class="button-row">
