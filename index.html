@@ -138,6 +138,12 @@
     gap: 20px;
   }
 
+    @media (min-width: 769px) {
+  .tiles {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
   .tile {
     background-color: var(--card-bg);
     border-radius: 10px;
@@ -325,19 +331,7 @@
 
   <div class="container">
     <h1>Compulator Directory</h1>
-    <div class="top-tile">
-      <a href="new-hire-bonus-level/" class="tile">New Hires</a>
-    </div>
-    <div class="tiles">
-      <a href="june-2025/" class="tile">Current Month: June 2025</a>
-      <a href="may-2025/" class="tile">May 2025</a>
-      <a href="july-2025/" class="tile">July 2025</a>
-      <a href="august-2025/" class="tile">August 2025</a>
-      <a href="september-2025/" class="tile">September 2025</a>
-      <a href="october-2025/" class="tile">October 2025</a>
-      <a href="november-2025/" class="tile">November 2025</a>
-      <a href="december-2025/" class="tile">December 2025</a>
-    </div>
+    <div class="tiles" id="tiles-container"></div>
   </div>
 
   <footer>
@@ -460,6 +454,60 @@
       doc.text(lines, 15, 20);
       doc.save('EULA.pdf');
     }
+  </script>
+  <!-- Tiles Rendering Script -->
+  <script>
+    // Visibility array: set to true/false for each tile in order
+    const tileVisibility = [
+      true,  // May 2025 New Hires
+      true,  // June 2025 New Hires
+      true,  // January 2025
+      true,  // February 2025
+      true,  // March 2025
+      true,  // April 2025
+      true,  // Current Month: June 2025
+      true,  // May 2025
+      true,  // July 2025
+      true,  // August 2025
+      true,  // September 2025
+      true,  // October 2025
+      true,  // November 2025
+      true   // December 2025
+    ];
+
+    // Tile data (new months inserted after new hire tiles)
+    const tileData = [
+      { href: "new-hire-bonus-level/", label: "May 2025 New Hires" },
+      { href: "secondary-new-hire-bonus-level/", label: "June 2025 New Hires" },
+      { href: "january/", label: "January 2025" },
+      { href: "february/", label: "February 2025" },
+      { href: "march/", label: "March 2025" },
+      { href: "april/", label: "April 2025" },
+      { href: "june/", label: "Current Month: June 2025" },
+      { href: "may/", label: "May 2025" },
+      { href: "july/", label: "July 2025" },
+      { href: "august/", label: "August 2025" },
+      { href: "september/", label: "September 2025" },
+      { href: "october/", label: "October 2025" },
+      { href: "november/", label: "November 2025" },
+      { href: "december/", label: "December 2025" }
+    ];
+
+    // Render tiles based on visibility
+    function renderTiles() {
+      const container = document.getElementById("tiles-container");
+      container.innerHTML = "";
+      tileData.forEach((tile, i) => {
+        if (tileVisibility[i]) {
+          const a = document.createElement("a");
+          a.href = tile.href;
+          a.className = "tile";
+          a.textContent = tile.label;
+          container.appendChild(a);
+        }
+      });
+    }
+    renderTiles();
   </script>
 </body>
 </html>
