@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>May 2025 Bonus Calculator</title>
+  <style>
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #2c3e50;
+      --input-bg: #fff;
+      --input-border: #ccc;
+      --result-bg: #ecf0f1;
+      --button-bg: #3498db;
+      --button-hover: #2980b9;
+      --reset-bg: #e74c3c;
+      --reset-hover: #c0392b;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #1e1e1e;
+      --text-color: #f1f1f1;
+      --input-bg: #2c2c2c;
+      --input-border: #555;
+      --result-bg: #2e2e2e;
+      --button-bg: #3b82f6;
+      --button-hover: #2563eb;
+      --reset-bg: #e74c3c;
+      --reset-hover: #c0392b;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0 auto;
+      padding: 20px;
+      background: var(--bg-color);
+      color: var(--text-color);
+      max-width: 700px;
+      box-sizing: border-box;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      font-weight: 600;
+    }
+
+    input {
+      padding: 10px;
+      width: 100%;
+      margin-bottom: 10px;
+      border: 1px solid var(--input-border);
+      border-radius: 6px;
+      background: var(--input-bg);
+      color: var(--text-color);
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    button {
+      flex: 1;
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    #reset {
+      background-color: var(--reset-bg);
+      color: white;
+    }
+
+    #reset:hover {
+      background-color: var(--reset-hover);
+    }
+
+    #download {
+      background-color: var(--button-bg);
+      color: white;
+    }
+
+    #download:hover {
+      background-color: var(--button-hover);
+    }
+
+    #themeToggle {
+      background-color: gray;
+      color: white;
+    }
+
+    #themeToggle:hover {
+      background-color: black;
+    }
+
+    .result {
+      margin-top: 30px;
+      padding: 20px;
+      background: var(--result-bg);
+      border-radius: 10px;
+      font-size: 16px;
+      white-space: pre-wrap;
+    }
+
+    .result strong {
+      font-size: 18px;
+    }
+
+    @media (max-width: 600px) {
+      .button-row {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h2>May 2025 Bonus Calculator</h2>
+
+  <label for="sales">Sales (excluding PDPs):</label>
+  <input type="number" id="sales" />
+
+  <label for="pdp">Standalone PDPs:</label>
+  <input type="number" id="pdp" />
+
+  <label for="hra">HRA Submissions:</label>
+  <input type="number" id="hra" />
+
+  <label for="vbcData">VBC Data:</label>
+  <input type="number" id="vbcData" />
+
+  <label for="vbcTransfer">VBC Transfers:</label>
+  <input type="number" id="vbcTransfer" />
+
+  <label for="selectRX">Select RX:</label>
+  <input type="number" id="selectRX" />
+
+  <label for="hospitalIndemnity">Hospital Indemnity:</label>
+  <input type="number" id="hospitalIndemnity" />
+
+  <label for="effectuation">Effectuation Rate (%):</label>
+  <input type="number" id="effectuation" />
+
+  <div class="button-row">
+    <button id="download" onclick="exportResult()">Download Summary</button>
+    <button id="reset" onclick="resetForm()">Reset</button>
+    <button id="themeToggle" onclick="toggleTheme()">Toggle Light/Dark</button>
+  </div>
+
+  <div class="result" id="total"></div>
+
+  <script>
+    const inputs = document.querySelectorAll("input");
+    let latestBreakdown = "";
+
+    inputs.forEach(input => input.addEventListener("input", calculateCommission));
+
+    function calculateCommission() {
+      const sales = parseInt(document.getElementById('sales').value) || 0;
+      const pdp = parseInt(document.getElementById('pdp').value) || 0;
+      const hra = parseInt(document.getElementById('hra').value) || 0;
+      const vbcData = parseInt(document.getElementById('vbcData').value) || 0;
+      const vbcTransfer = parseInt(document.getElementById('vbcTransfer').value) || 0;
+      const selectRX = parseInt(document.getElementById('selectRX').value) || 0;
+      const hospitalIndemnity = parseInt(document.getElementById('hospitalIndemnity').value) || 0;
+      const effectuation = parseFloat(document.getElementById('effectuation').value) || 0;
+
+      let effBonus = 5;
+      if (effectuation >= 93) effBonus = 35;
+      else if (effectuation >= 88) effBonus = 30;
+      else if (effectuation >= 83) effBonus = 25;
+      else if (effectuation >= 78) effBonus = 15;
+      else if (effectuation >= 75) effBonus = 10;
+
+      let volumeBonus = 5;
+      if (sales >= 60) volumeBonus = 50;
+      else if (sales >= 48) volumeBonus = 40;
+      else if (sales >= 40) volumeBonus = 35;
+      else if (sales >= 34) volumeBonus = 25;
+      else if (sales >= 28) volumeBonus = 15;
+      else if (sales >= 20) volumeBonus = 10;
+
+      const qualifiesVolume = effectuation >= 78 && sales >= 28;
+      // Calculate Effectuated Sales
+      const effectuatedSales = Math.round(sales * (effectuation / 100));
+
+      // Updated Sales Bonus using Effectuated Sales
+      const perSaleBonus = qualifiesVolume ? (effBonus + volumeBonus) : effBonus + (sales < 34 ? volumeBonus : 0);
+      const salesBonus = effectuatedSales * perSaleBonus;
+
+
+      const pdpBonus = pdp * 5;
+      const hraBonus = hra * 5;
+      const vbcDataBonus = vbcData * 10;
+      const vbcTransferBonus = vbcTransfer * 25;
+
+      const selectRxRate = selectRX >= 20 ? 12 : selectRX >= 15 ? 10 : selectRX >= 0 ? 8 : 0;
+      const selectRxTotal = selectRX * selectRxRate;
+
+      const hospitalRate = hospitalIndemnity >= 15 ? 35 : hospitalIndemnity >= 10 ? 30 : hospitalIndemnity >= 0 ? 25 : 0;
+      const hospitalTotal = hospitalIndemnity * hospitalRate;
+
+      const total = salesBonus + pdpBonus + hraBonus + vbcDataBonus + vbcTransferBonus + selectRxTotal + hospitalTotal;
+
+      latestBreakdown =
+      `Effectuation Bonus: $${effBonus}\n` +
+      `Volume Bonus: $${volumeBonus}\n` +
+      `Effectuated Sales: ${sales} × ${effectuation}% = ${effectuatedSales}\n` +
+      `Sales Bonus: ${effectuatedSales} × $${perSaleBonus} = $${salesBonus.toLocaleString()}\n` +
+      `PDP Bonus: ${pdp} × $5 = $${pdpBonus.toLocaleString()}\n` +
+      `HRA Bonus: ${hra} × $5 = $${hraBonus.toLocaleString()}\n` +
+      `VBC Data Bonus: ${vbcData} × $10 = $${vbcDataBonus.toLocaleString()}\n` +
+      `VBC Transfer Bonus: ${vbcTransfer} × $25 = $${vbcTransferBonus.toLocaleString()}\n` +
+      `Select RX Bonus: ${selectRX} × $${selectRxRate} = $${selectRxTotal.toLocaleString()}\n` +
+      `Hospital Indemnity Bonus: ${hospitalIndemnity} × $${hospitalRate} = $${hospitalTotal.toLocaleString()}\n\n` +
+      `Total Bonus: $${total.toLocaleString()}`;
+
+
+      document.getElementById('total').textContent = latestBreakdown;
+    }
+
+    function exportResult() {
+      if (!latestBreakdown) {
+        alert("Please enter values to calculate first.");
+        return;
+      }
+      const blob = new Blob([latestBreakdown], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'May2025_Bonus_Summary.txt';
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function resetForm() {
+      inputs.forEach(input => input.value = "");
+      document.getElementById('total').textContent = "";
+    }
+
+    function toggleTheme() {
+      const body = document.body;
+      body.style.transition = 'background-color 0.5s ease, color 0.5s ease';
+      const currentTheme = body.getAttribute("data-theme");
+      if (currentTheme === "dark") {
+        body.removeAttribute("data-theme");
+        localStorage.setItem("theme", "light");
+      } else {
+        body.setAttribute("data-theme", "dark");
+        localStorage.setItem("theme", "dark");
+      }
+    }
+
+    // Match system preference on first load
+    window.onload = () => {
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme) {
+        if (savedTheme === "dark") document.body.setAttribute("data-theme", "dark");
+      } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        document.body.setAttribute("data-theme", "dark");
+      }
+      calculateCommission(); // Run on load if values are cached
+    };
+  </script>
+</body>
+</html>

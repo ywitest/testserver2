@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="auto">
+<head>
+  <meta charset="UTF-8" />
+  <title>Compulator Directory</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="favicon.png" type="image/png" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+  :root {
+    --primary: #0067b1;
+    --accent: #00b275;
+    --background-light: #f5f7fa;
+    --background-dark: #0c1d2c;
+    --card-bg-light: #ffffff;
+    --card-bg-dark: #142c3e;
+    --text-light: #0c1d2c;
+    --text-dark: #ecf0f3;
+    --hover-accent: #00ffbf;
+  }
+
+  [data-theme="dark"] {
+    --background: var(--background-dark);
+    --text: var(--text-dark);
+    --card-bg: var(--card-bg-dark);
+    --modal-bg: #1e3247;
+    --modal-text: var(--text-dark);
+  }
+
+  [data-theme="light"],
+  [data-theme="auto"]:not([data-user-theme="dark"]) {
+    --background: var(--background-light);
+    --text: var(--text-light);
+    --card-bg: var(--card-bg-light);
+    --modal-bg: #ffffff;
+    --modal-text: var(--text-light);
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: var(--background);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  header {
+    background-color: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 30px;
+  }
+
+  header img {
+    height: 40px;
+  }
+
+  nav {
+    margin-left: 20px;
+  }
+
+  .eula-tab {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 16px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+    margin-right: 10px;
+  }
+
+  .eula-tab:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .theme-toggle {
+    position: relative;
+    width: 50px;
+    height: 26px;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  .theme-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+  }
+
+  .theme-toggle::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    background-color: white;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease;
+  }
+
+  [data-user-theme="dark"] .theme-toggle::before {
+    transform: translateX(24px);
+    background-color: var(--primary);
+    box-shadow: 0 2px 6px rgba(0,103,177,0.7);
+  }
+
+  .container {
+    flex: 1;
+    padding: 40px 20px;
+    max-width: 900px;
+    margin: auto;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 32px;
+    margin-bottom: 30px;
+  }
+
+  .top-tile {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+  }
+
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+  }
+
+  .tile {
+    background-color: var(--card-bg);
+    border-radius: 10px;
+    padding: 30px 20px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s, box-shadow 0.2s, border 0.2s;
+    border: 2px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--primary);
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .tile:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 6px 18px rgba(0, 255, 191, 0.2);
+    border: 2px solid var(--hover-accent);
+  }
+
+  footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 14px;
+    color: #888;
+  }
+
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .modal-content {
+    background-color: var(--modal-bg);
+    color: var(--modal-text);
+    margin: 0 20px;
+    padding: 30px;
+    max-width: 800px;
+    max-height: 90%;
+    overflow-y: auto;
+    border-radius: 10px;
+    position: relative;
+    line-height: 1.6;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    transform: scale(0.9);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+
+  .modal.show .modal-content {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  .close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+
+  .close:hover {
+    color: #555;
+  }
+
+  .download-btn {
+    margin-top: 20px;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .download-btn:hover {
+    background-color: #004b87;
+  }
+
+  /* Mobile-specific styles */
+  @media (max-width: 768px) {
+    header {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 10px 20px;
+    }
+
+    header img {
+      margin-bottom: 10px;
+    }
+
+    nav {
+      margin-left: 0;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .eula-tab {
+      margin: 5px 0;
+      padding: 10px;
+      font-size: 16px;
+      width: 100%;
+      text-align: left;
+    }
+
+    .theme-toggle {
+      align-self: flex-end;
+      margin-top: 10px;
+    }
+
+    .container {
+      padding: 20px 10px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .top-tile {
+      margin-bottom: 20px;
+    }
+
+    .tiles {
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
+
+    .tile {
+      padding: 20px 15px;
+      font-size: 16px;
+    }
+
+    .modal-content {
+      padding: 20px;
+      max-width: 95%;
+      max-height: 90%;
+    }
+
+    .download-btn {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+    }
+  }
+</style>
+
+</head>
+
+<body>
+  <header>
+    <div style="display: flex; align-items: center;">
+      <img src="logo.png" alt="YourWay Insurance Logo" />
+      <nav>
+        <a href="#" class="eula-tab" onclick="openModal()">End-User License Agreement (EULA)</a>
+        <a href="#" class="eula-tab" onclick="openPrivacyModal()">Privacy Policy</a>
+      </nav>
+    </div>
+    <div class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme" role="button" tabindex="0"></div>
+  </header>
+
+  <div class="container">
+    <h1>Compulator Directory</h1>
+    <div class="top-tile">
+      <a href="new-hire-bonus-level/" class="tile">New Hires</a>
+    </div>
+    <div class="tiles">
+      <a href="june-2025/" class="tile">Current Month: June 2025</a>
+      <a href="may-2025/" class="tile">May 2025</a>
+      <a href="july-2025/" class="tile">July 2025</a>
+      <a href="august-2025/" class="tile">August 2025</a>
+      <a href="september-2025/" class="tile">September 2025</a>
+      <a href="october-2025/" class="tile">October 2025</a>
+      <a href="november-2025/" class="tile">November 2025</a>
+      <a href="december-2025/" class="tile">December 2025</a>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2025 Brendan Pogue | Made for Your Way Insurance. All Rights Reserved.
+  </footer>
+
+  <!-- EULA Modal -->
+  <div id="eulaModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="eulaTitle" aria-describedby="eulaDesc">
+    <div class="modal-content" id="eulaContent">
+      <span class="close" onclick="closeModal()" aria-label="Close modal">&times;</span>
+      <h2 id="eulaTitle">END-USER LICENSE AGREEMENT (EULA)</h2>
+      <p><strong>For the “Compulator” Bonus Calculator Application</strong><br />Effective Date: 06/04/2025</p>
+
+      <p><strong>IMPORTANT – PLEASE READ CAREFULLY BEFORE INSTALLING OR USING THIS SOFTWARE.</strong></p>
+
+      <p>This End-User License Agreement (“Agreement”) is a legal agreement between you (“User”, “You”, or “Licensee”) and Brendan Pogue (“Licensor”) governing your use of the “Compulator” Bonus Calculator Application (“Software”). By installing, accessing, or using the Software, You agree to be bound by this Agreement.</p>
+
+      <h3>1. LICENSE GRANT</h3>
+      <p>Licensor hereby grants You a non-exclusive, non-transferable, revocable license to use the Software solely for Your internal business purposes as an employee or representative of Your Way Insurance.</p>
+
+      <h3>2. RESTRICTIONS</h3>
+      <ul>
+        <li>You may not modify, distribute, sublicense, rent, lease, or sell the Software or any portion thereof.</li>
+        <li>You may not reverse engineer, decompile, or disassemble the Software except to the extent permitted by applicable law.</li>
+      </ul>
+
+      <h3>3. INTELLECTUAL PROPERTY</h3>
+      <p>All rights, title, and interest in and to the Software, including all intellectual property rights, remain with Licensor. This Agreement does not grant You any ownership rights.</p>
+
+      <h3>4. TERM AND TERMINATION</h3>
+      <p>This Agreement is effective upon Your acceptance and remains in effect until terminated. Licensor may terminate this Agreement immediately if You fail to comply with its terms. Upon termination, You must cease all use of the Software and delete all copies.</p>
+
+      <h3>5. DISCLAIMER OF WARRANTY</h3>
+      <p>The Software is provided “AS IS” without warranties of any kind, either express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, and non-infringement.</p>
+
+      <h3>6. LIMITATION OF LIABILITY</h3>
+      <p>Licensor shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising out of or relating to Your use of the Software.</p>
+
+      <h3>7. INDEMNIFICATION</h3>
+      <p>You agree to indemnify, defend, and hold harmless Licensor from any claims, damages, liabilities, costs, and expenses arising from Your breach of this Agreement.</p>
+
+      <h3>8. GOVERNING LAW</h3>
+      <p>This Agreement shall be governed by the laws of the state where Licensor resides, without regard to conflict of law principles.</p>
+
+      <h3>9. ENTIRE AGREEMENT</h3>
+      <p>This Agreement constitutes the entire agreement between the parties regarding the Software and supersedes all prior agreements or understandings.</p>
+    </div>
+  </div>
+
+  <!-- Privacy Policy Modal -->
+<div id="privacyModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="privacyTitle" aria-describedby="privacyDesc">
+  <div class="modal-content" id="privacyContent" tabindex="0">
+    <span class="close" id="closePrivacy" aria-label="Close modal">&times;</span>
+    <h2 id="privacyTitle">PRIVACY POLICY</h2>
+
+    <p>Effective Date: 06/04/2025</p>
+
+    <p>Your Way Insurance and Brendan Pogue (“we”, “our”, or “us”) are committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use the Compulator Bonus Calculator Application (“Software”).</p>
+
+    <h3>Information We Collect</h3>
+    <p>We do not collect any personal information through the Software. No data is transmitted or stored outside your device.</p>
+
+    <h3>Use of Information</h3>
+    <p>Since no personal data is collected, we do not use your information for any purpose.</p>
+
+    <h3>Data Security</h3>
+    <p>As the Software operates locally on your device, data security is your responsibility.</p>
+
+    <h3>Changes to This Privacy Policy</h3>
+    <p>We may update this Privacy Policy occasionally. Changes will be posted right here automatically for you as it is updated over time.</p>
+  </div>
+</div>
+
+  <script>
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-user-theme');
+      const newTheme = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      document.documentElement.setAttribute('data-user-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+    }
+
+    (function () {
+      const saved = localStorage.getItem('theme');
+      const theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+      document.documentElement.setAttribute('data-user-theme', theme);
+    })();
+
+    function openModal() {
+      const modal = document.getElementById('eulaModal');
+      modal.classList.add('show');
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('eulaModal');
+      modal.classList.remove('show');
+    }
+
+    function openPrivacyModal() {
+      const modal = document.getElementById('privacyModal');
+      modal.classList.add('show');
+    }
+
+    function closePrivacyModal() {
+      const modal = document.getElementById('privacyModal');
+      modal.classList.remove('show');
+    }
+
+    window.onclick = function(event) {
+      if (event.target === document.getElementById('eulaModal')) closeModal();
+      if (event.target === document.getElementById('privacyModal')) closePrivacyModal();
+    }
+
+    async function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const content = document.getElementById('eulaContent').innerText;
+      const lines = doc.splitTextToSize(content, 180);
+      doc.text(lines, 15, 20);
+      doc.save('EULA.pdf');
+    }
+  </script>
+</body>
+</html>
