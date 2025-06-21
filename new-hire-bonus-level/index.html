@@ -16,51 +16,7 @@
       --reset-bg: #e74c3c;
       --reset-hover: #c0392b;
     }
-.popup-overlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
-  background: rgba(0,0,0,0.35);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
-.popup-message {
-  background: #fff;
-  color: #2c3e50;
-  border-radius: 12px;
-  box-shadow: 0 6px 36px rgba(0,0,0,0.10);
-  padding: 32px 28px 24px 28px;
-  font-size: 1.1em;
-  max-width: 440px;
-  width: 92vw;
-  position: relative;
-  text-align: left;
-  font-family: inherit;
-  line-height: 1.5;
-}
-.popup-close {
-  position: absolute;
-  top: 12px;
-  right: 18px;
-  background: none;
-  border: none;
-  color: #555;
-  font-size: 22px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-.popup-close:hover {
-  color: #e74c3c;
-}
-[data-theme="dark"] .popup-message {
-  background: #262b35;
-  color: #ecf0f3;
-  border: 1px solid #333e4d;
-}
-    
+
     [data-theme="dark"] {
       --bg-color: #1e1e1e;
       --text-color: #f1f1f1;
@@ -165,59 +121,96 @@
       font-size: 18px;
     }
 
+    /* Popup Styles */
+    .popup-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .popup-message {
+      background: #fff;
+      color: #2c3e50;
+      border-radius: 12px;
+      box-shadow: 0 6px 36px rgba(0,0,0,0.10);
+      padding: 32px 28px 24px 28px;
+      font-size: 1.1em;
+      max-width: 440px;
+      width: 92vw;
+      position: relative;
+      text-align: left;
+      font-family: inherit;
+      line-height: 1.5;
+    }
+    [data-theme="dark"] .popup-message {
+      background: #262b35;
+      color: #ecf0f3;
+      border: 1px solid #333e4d;
+    }
+    .popup-close {
+      position: absolute;
+      top: 12px;
+      right: 18px;
+      background: none;
+      border: none;
+      color: #555;
+      font-size: 22px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .popup-close:hover {
+      color: #e74c3c;
+    }
+
+    /* Champions Club Checkbox */
     .champions-label {
-  display: flex;
-  align-items: center;
-  margin: 20px 0 12px 0;
-  font-weight: 600;
-  font-size: 1.13em;
-  justify-content: flex-start;
-}
-.checkbox-large {
-  width: 28px;
-  height: 28px;
-  min-width: 28px;
-  min-height: 28px;
-  margin-right: 12px;
-  accent-color: #3498db;
-}
-@media (max-width: 600px) {
-  .champions-label {
-    font-size: 1em;
-  }
-  .checkbox-large {
-    width: 22px;
-    height: 22px;
-    min-width: 22px;
-    min-height: 22px;
-  }
-}
+      display: flex;
+      align-items: center;
+      margin: 20px 0 12px 0;
+      font-weight: 600;
+      font-size: 1.13em;
+      justify-content: flex-start;
+    }
+    .checkbox-large {
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      min-height: 28px;
+      margin-right: 12px;
+      accent-color: #3498db;
+    }
 
     @media (max-width: 600px) {
       .button-row {
         flex-direction: column;
       }
-
-      .checkbox-label {
-  display: flex;
-  align-items: center;
-  margin: 12px 0;
-  font-weight: 600;
-  gap: 8px;
-}
-
-.checkbox-label input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-}
-
-      button {
-        width: 100%;
+      .champions-label {
+        font-size: 1em;
+      }
+      .checkbox-large {
+        width: 22px;
+        height: 22px;
+        min-width: 22px;
+        min-height: 22px;
       }
     }
   </style>
 </head>
 <body>
+  <!-- POPUP -->
+  <div class="popup-overlay" id="noticePopup" style="display:none;">
+    <div class="popup-message">
+      <button class="popup-close" id="closePopupBtn" aria-label="Close Popup">&times;</button>
+      <strong>NOTE:</strong> This calculator is maintained by the sales department and does not necessarily confirm final sales bonus amounts. Final totals will continue to be calculated by Finance and Accounting.
+    </div>
+  </div>
+  <!-- END POPUP -->
+
   <h2>New Hire Bonus Calculator</h2>
 
   <label for="sales">Sales (excluding PDPs):</label>
@@ -251,17 +244,9 @@
   <input type="number" id="effectuationLeaderboard" placeholder="1 - 10" min="1" max="10" />
 
   <label class="champions-label">
-  <input type="checkbox" id="championsClub" class="checkbox-large"/>
-  Champions Club ($1,000 Bonus)
-</label>
-
-  <!-- Popup Overlay -->
-<div class="popup-overlay" id="noticePopup" style="display:none;">
-  <div class="popup-message">
-    <button class="popup-close" id="closePopupBtn" aria-label="Close Popup">&times;</button>
-    <strong>NOTE:</strong> This calculator is maintained by the sales department and does not necessarily confirm final sales bonus amounts. Final totals will continue to be calculated by Finance and Accounting.
-  </div>
-</div>
+    <input type="checkbox" id="championsClub" class="checkbox-large"/>
+    Champions Club ($1,000 Bonus)
+  </label>
 
   <div class="button-row">
     <button id="download" onclick="exportResult()">Download Summary</button>
@@ -272,24 +257,23 @@
   <div class="result" id="total"></div>
 
   <script>
+    // POPUP LOGIC
+    window.addEventListener('DOMContentLoaded', function() {
+      var popup = document.getElementById('noticePopup');
+      var closeBtn = document.getElementById('closePopupBtn');
+      popup.style.display = 'flex';
+      closeBtn.onclick = function() {
+        popup.style.display = 'none';
+      };
+      document.addEventListener('keydown', function(e){
+        if (e.key === 'Escape' && popup.style.display !== 'none') popup.style.display = 'none';
+      });
+      popup.addEventListener('click', function(e){
+        if(e.target === popup) popup.style.display = 'none';
+      });
+    });
+    // END POPUP LOGIC
 
-    <script>
-window.addEventListener('DOMContentLoaded', function() {
-  var popup = document.getElementById('noticePopup');
-  var closeBtn = document.getElementById('closePopupBtn');
-  popup.style.display = 'flex';
-  closeBtn.onclick = function() {
-    popup.style.display = 'none';
-  };
-  document.addEventListener('keydown', function(e){
-    if (e.key === 'Escape' && popup.style.display !== 'none') popup.style.display = 'none';
-  });
-  popup.addEventListener('click', function(e){
-    if(e.target === popup) popup.style.display = 'none';
-  });
-});
-</script>
-    
     const inputs = document.querySelectorAll("input");
     let latestBreakdown = "";
 
@@ -341,8 +325,6 @@ window.addEventListener('DOMContentLoaded', function() {
       const isChampionsClub = document.getElementById('championsClub')?.checked;
       const championsClubBonus = isChampionsClub ? 1000 : 0;
 
-
-
       if (isNewHire) {
         if (volumeBonus < 50) volumeBonus += 5;
       }
@@ -354,7 +336,6 @@ window.addEventListener('DOMContentLoaded', function() {
       // Updated Sales Bonus using Effectuated Sales
       const perSaleBonus = qualifiesVolume ? (effBonus + volumeBonus) : effBonus + (sales < 34 ? volumeBonus : 0);
       const salesBonus = effectuatedSales * perSaleBonus;
-
 
       const pdpBonus = pdp * 5;
       const hraBonus = hra * 5;
@@ -378,7 +359,6 @@ window.addEventListener('DOMContentLoaded', function() {
 
       const total = salesBonus + pdpBonus + hraBonus + vbcDataBonus + vbcTransferBonus + selectRxTotal + hospitalTotal + salesLeaderboardBonus + effectuationLeaderboardBonus + championsClubBonus;
 
-
       latestBreakdown =
       `Effectuation Bonus: $${effBonus}\n` +
       `Volume Bonus: $${volumeBonus}\n` +
@@ -394,7 +374,6 @@ window.addEventListener('DOMContentLoaded', function() {
       `Effectuation Leaderboard Bonus (Rank ${effectuationRank || "N/A"}): $${effectuationLeaderboardBonus.toLocaleString()}\n\n` +
       `Champions Club Bonus: $${championsClubBonus.toLocaleString()}\n\n` +
       `Total Bonus: $${total.toLocaleString()}`;
-
 
       document.getElementById('total').textContent = latestBreakdown;
     }
