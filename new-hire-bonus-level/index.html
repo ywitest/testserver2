@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>June 2025 New Hire Bonus Calculator</title>
+  <title>New Hire Bonus Calculator</title>
   <style>
     :root {
       --bg-color: #ffffff;
@@ -211,7 +211,7 @@
   </div>
   <!-- END POPUP -->
 
-  <h2>June 2025 New Hire Bonus Calculator</h2>
+  <h2>New Hire Bonus Calculator</h2>
 
   <label for="sales">Sales (excluding PDPs):</label>
   <input type="number" id="sales" />
@@ -236,6 +236,7 @@
 
   <label for="effectuation">Effectuation Rate (%):</label>
   <input type="number" id="effectuation" />
+
   <label for="salesLeaderboard">Sales Leaderboard Rank (1–10):</label>
   <input type="number" id="salesLeaderboard" placeholder="1 - 10" min="1" max="10" />
 
@@ -288,28 +289,26 @@
       const hospitalIndemnity = parseInt(document.getElementById('hospitalIndemnity').value) || 0;
       const effectuation = parseFloat(document.getElementById('effectuation').value) || 0;
 
-      let effBonus = 10;
+      const isNewHire = true; // Assume level boost is always active
+
+      let effBonus = 5;
       if (effectuation >= 93) effBonus = 35;
-      else if (effectuation >= 88) effBonus = 35;
-      else if (effectuation >= 83) effBonus = 30;
-      else if (effectuation >= 78) effBonus = 25;
-      else if (effectuation >= 75) effBonus = 15;
+      else if (effectuation >= 88) effBonus = 30;
+      else if (effectuation >= 83) effBonus = 25;
+      else if (effectuation >= 78) effBonus = 15;
+      else if (effectuation >= 75) effBonus = 10;
 
-      let volumeBonus = 10;
-      if (sales >= 58) volumeBonus = 50;
-      else if (sales >= 46) volumeBonus = 50;
-      else if (sales >= 39) volumeBonus = 40;
-      else if (sales >= 32) volumeBonus = 35;
-      else if (sales >= 26) volumeBonus = 25;
-      else if (sales >= 20) volumeBonus = 15;
+      if (isNewHire) {
+        if (effBonus < 35) effBonus += 5;
+      }
 
-      const qualifiesVolume = effectuation >= 78 && sales >= 28;
-      // Calculate Effectuated Sales
-      const effectuatedSales = Math.round(sales * (effectuation / 100));
-
-      // Updated Sales Bonus using Effectuated Sales
-      const perSaleBonus = qualifiesVolume ? (effBonus + volumeBonus) : effBonus + (sales < 34 ? volumeBonus : 0);
-      const salesBonus = effectuatedSales * perSaleBonus;
+      let volumeBonus = 5;
+      if (sales >= 60) volumeBonus = 50;
+      else if (sales >= 48) volumeBonus = 50;
+      else if (sales >= 40) volumeBonus = 35;
+      else if (sales >= 34) volumeBonus = 25;
+      else if (sales >= 28) volumeBonus = 15;
+      else if (sales >= 20) volumeBonus = 10;
 
       // Leaderboard Rank Bonus Mapping
       const leaderboardPayouts = [750, 600, 500, 400, 350, 300, 250, 200, 150, 100];
@@ -326,15 +325,36 @@
       const isChampionsClub = document.getElementById('championsClub')?.checked;
       const championsClubBonus = isChampionsClub ? 1000 : 0;
 
+      if (isNewHire) {
+        if (volumeBonus < 50) volumeBonus += 5;
+      }
+
+      const qualifiesVolume = effectuation >= 78 && sales >= 28;
+      // Calculate Effectuated Sales
+      const effectuatedSales = Math.round(sales * (effectuation / 100));
+
+      // Updated Sales Bonus using Effectuated Sales
+      const perSaleBonus = qualifiesVolume ? (effBonus + volumeBonus) : effBonus + (sales < 34 ? volumeBonus : 0);
+      const salesBonus = effectuatedSales * perSaleBonus;
+
       const pdpBonus = pdp * 5;
       const hraBonus = hra * 5;
       const vbcDataBonus = vbcData * 10;
       const vbcTransferBonus = vbcTransfer * 25;
 
-      const selectRxRate = selectRX >= 20 ? 12 : selectRX >= 15 ? 10 : selectRX >= 0 ? 8 : 0;
-      const selectRxTotal = selectRX * selectRxRate;
+      let selectRxRate = selectRX >= 20 ? 12 : selectRX >= 15 ? 10 : selectRX >= 0 ? 8 : 0;
+      if (isNewHire) {
+        if (selectRxRate === 8) selectRxRate = 10;
+        else if (selectRxRate === 10) selectRxRate = 12;
+      }
 
-      const hospitalRate = hospitalIndemnity >= 15 ? 35 : hospitalIndemnity >= 10 ? 30 : hospitalIndemnity >= 0 ? 25 : 0;
+      let hospitalRate = hospitalIndemnity >= 15 ? 35 : hospitalIndemnity >= 10 ? 30 : hospitalIndemnity >= 0 ? 25 : 0;
+      if (isNewHire) {
+        if (hospitalRate === 25) hospitalRate = 30;
+        else if (hospitalRate === 30) hospitalRate = 35;
+      }
+
+      const selectRxTotal = selectRX * selectRxRate;
       const hospitalTotal = hospitalIndemnity * hospitalRate;
 
       const total = salesBonus + pdpBonus + hraBonus + vbcDataBonus + vbcTransferBonus + selectRxTotal + hospitalTotal + salesLeaderboardBonus + effectuationLeaderboardBonus + championsClubBonus;
@@ -349,7 +369,7 @@
       `VBC Data Bonus: ${vbcData} × $10 = $${vbcDataBonus.toLocaleString()}\n` +
       `VBC Transfer Bonus: ${vbcTransfer} × $25 = $${vbcTransferBonus.toLocaleString()}\n` +
       `Select RX Bonus: ${selectRX} × $${selectRxRate} = $${selectRxTotal.toLocaleString()}\n` +
-      `Hospital Indemnity Bonus: ${hospitalIndemnity} × $${hospitalRate} = $${hospitalTotal.toLocaleString()}\n\n` +
+      `Hospital Indemnity Bonus: ${hospitalIndemnity} × $${hospitalRate} = $${hospitalTotal.toLocaleString()}\n\n` +       
       `Sales Leaderboard Bonus (Rank ${salesRank || "N/A"}): $${salesLeaderboardBonus.toLocaleString()}\n` +
       `Effectuation Leaderboard Bonus (Rank ${effectuationRank || "N/A"}): $${effectuationLeaderboardBonus.toLocaleString()}\n\n` +
       `Champions Club Bonus: $${championsClubBonus.toLocaleString()}\n\n` +
@@ -367,13 +387,13 @@
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'June2025_New_Hire_Bonus_Summary.txt';
+      link.download = 'New_Hire_Bonus_Summary.txt';
       link.click();
       URL.revokeObjectURL(url);
     }
 
     function resetForm() {
-      inputs.forEach(input => input.value = "";
+      inputs.forEach(input => input.value = "");
       document.getElementById('total').textContent = "";
     }
 
@@ -390,15 +410,14 @@
       }
     }
 
-    // Match system preference on first load
     window.onload = () => {
       const savedTheme = localStorage.getItem("theme");
-      if (savedTheme) {
-        if (savedTheme === "dark") document.body.setAttribute("data-theme", "dark");
-      } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      if (savedTheme === "dark") {
+        document.body.setAttribute("data-theme", "dark");
+      } else if (!savedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches) {
         document.body.setAttribute("data-theme", "dark");
       }
-      calculateCommission(); // Run on load if values are cached
+      calculateCommission();
     };
   </script>
 </body>
