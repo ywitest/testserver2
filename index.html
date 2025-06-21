@@ -246,6 +246,52 @@
     background-color: #004b87;
   }
 
+  /* Popup Styles */
+  .popup-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+  }
+  .popup-message {
+    background: #fff;
+    color: #2c3e50;
+    border-radius: 12px;
+    box-shadow: 0 6px 36px rgba(0,0,0,0.10);
+    padding: 32px 28px 24px 28px;
+    font-size: 1.1em;
+    max-width: 440px;
+    width: 92vw;
+    position: relative;
+    text-align: left;
+    font-family: inherit;
+    line-height: 1.5;
+  }
+  [data-theme="dark"] .popup-message {
+    background: #262b35;
+    color: #ecf0f3;
+    border: 1px solid #333e4d;
+  }
+  .popup-close {
+    position: absolute;
+    top: 12px;
+    right: 18px;
+    background: none;
+    border: none;
+    color: #555;
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .popup-close:hover {
+    color: #e74c3c;
+  }
+
   /* Mobile-specific styles */
   @media (max-width: 768px) {
     header {
@@ -312,12 +358,25 @@
       padding: 12px;
       font-size: 16px;
     }
+    .popup-message {
+      font-size: 1em;
+      padding: 18px 10px 16px 14px;
+    }
   }
 </style>
 
 </head>
 
 <body>
+  <!-- Popup Overlay -->
+  <div class="popup-overlay" id="noticePopup" style="display:none;">
+    <div class="popup-message">
+      <button class="popup-close" id="closePopupBtn" aria-label="Close Popup">&times;</button>
+      <strong>NOTE:</strong> This calculator is maintained by the sales department and does not necessarily confirm final sales bonus amounts. Final totals will continue to be calculated by Finance and Accounting.
+    </div>
+  </div>
+  <!-- End Popup Overlay -->
+
   <header>
     <div style="display: flex; align-items: center;">
       <img src="logo.png" alt="YourWay Insurance Logo" />
@@ -454,6 +513,23 @@
       doc.text(lines, 15, 20);
       doc.save('EULA.pdf');
     }
+
+    // POPUP LOGIC
+    window.addEventListener('DOMContentLoaded', function() {
+      var popup = document.getElementById('noticePopup');
+      var closeBtn = document.getElementById('closePopupBtn');
+      popup.style.display = 'flex';
+      closeBtn.onclick = function() {
+        popup.style.display = 'none';
+      };
+      document.addEventListener('keydown', function(e){
+        if (e.key === 'Escape' && popup.style.display !== 'none') popup.style.display = 'none';
+      });
+      popup.addEventListener('click', function(e){
+        if(e.target === popup) popup.style.display = 'none';
+      });
+    });
+    // END POPUP LOGIC
   </script>
   <!-- Tiles Rendering Script -->
   <script>
