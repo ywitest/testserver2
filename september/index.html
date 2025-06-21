@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>May 2025 Commission Calculator</title>
+  <title>June 2025 Bonus Calculator</title>
   <style>
     :root {
       --bg-color: #ffffff;
@@ -121,6 +121,24 @@
       font-size: 18px;
     }
 
+    /* CHAMPIONS CLUB ONLY */
+    .champions-label {
+      display: flex;
+      align-items: center;
+      margin: 20px 0 12px 0;
+      font-weight: 600;
+      font-size: 1.13em;
+      justify-content: flex-start;
+    }
+    .checkbox-large {
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      min-height: 28px;
+      margin-right: 12px;
+      accent-color: #3498db;
+    }
+
     @media (max-width: 600px) {
       .button-row {
         flex-direction: column;
@@ -129,11 +147,75 @@
       button {
         width: 100%;
       }
+      .champions-label {
+        font-size: 1em;
+      }
+      .checkbox-large {
+        width: 22px;
+        height: 22px;
+        min-width: 22px;
+        min-height: 22px;
+      }
+    }
+
+    /* Popup Styles */
+    .popup-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .popup-message {
+      background: #fff;
+      color: #2c3e50;
+      border-radius: 12px;
+      box-shadow: 0 6px 36px rgba(0,0,0,0.10);
+      padding: 32px 28px 24px 28px;
+      font-size: 1.1em;
+      max-width: 440px;
+      width: 92vw;
+      position: relative;
+      text-align: left;
+      font-family: inherit;
+      line-height: 1.5;
+    }
+    [data-theme="dark"] .popup-message {
+      background: #262b35;
+      color: #ecf0f3;
+      border: 1px solid #333e4d;
+    }
+    .popup-close {
+      position: absolute;
+      top: 12px;
+      right: 18px;
+      background: none;
+      border: none;
+      color: #555;
+      font-size: 22px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .popup-close:hover {
+      color: #e74c3c;
     }
   </style>
 </head>
 <body>
-  <h2>May 2025 Commission Calculator</h2>
+  <!-- POPUP -->
+  <div class="popup-overlay" id="noticePopup" style="display:none;">
+    <div class="popup-message">
+      <button class="popup-close" id="closePopupBtn" aria-label="Close Popup">&times;</button>
+      <strong>NOTE:</strong> This calculator is maintained by the sales department and does not necessarily confirm final sales bonus amounts. Final totals will continue to be calculated by Finance and Accounting.
+    </div>
+  </div>
+  <!-- END POPUP -->
+
+  <h2>June 2025 Bonus Calculator</h2>
 
   <label for="sales">Sales (excluding PDPs):</label>
   <input type="number" id="sales" />
@@ -158,6 +240,16 @@
 
   <label for="effectuation">Effectuation Rate (%):</label>
   <input type="number" id="effectuation" />
+  <label for="salesLeaderboard">Sales Leaderboard Rank (1–10):</label>
+  <input type="number" id="salesLeaderboard" placeholder="1 - 10" min="1" max="10" />
+
+  <label for="effectuationLeaderboard">Effectuation Leaderboard Rank (1–10):</label>
+  <input type="number" id="effectuationLeaderboard" placeholder="1 - 10" min="1" max="10" />
+
+  <label class="champions-label">
+    <input type="checkbox" id="championsClub" class="checkbox-large"/>
+    Champions Club ($1,000 Bonus)
+  </label>
 
   <div class="button-row">
     <button id="download" onclick="exportResult()">Download Summary</button>
@@ -168,6 +260,25 @@
   <div class="result" id="total"></div>
 
   <script>
+    // POPUP LOGIC
+    window.addEventListener('DOMContentLoaded', function() {
+      var popup = document.getElementById('noticePopup');
+      var closeBtn = document.getElementById('closePopupBtn');
+      popup.style.display = 'flex';
+      closeBtn.onclick = function() {
+        popup.style.display = 'none';
+      };
+      // Optionally allow ESC key to close popup
+      document.addEventListener('keydown', function(e){
+        if (e.key === 'Escape' && popup.style.display !== 'none') popup.style.display = 'none';
+      });
+      // Optionally close popup if overlay is clicked (not the message box)
+      popup.addEventListener('click', function(e){
+        if(e.target === popup) popup.style.display = 'none';
+      });
+    });
+    // END POPUP LOGIC
+
     const inputs = document.querySelectorAll("input");
     let latestBreakdown = "";
 
@@ -191,16 +302,36 @@
       else if (effectuation >= 75) effBonus = 10;
 
       let volumeBonus = 5;
-      if (sales >= 60) volumeBonus = 50;
-      else if (sales >= 48) volumeBonus = 40;
-      else if (sales >= 40) volumeBonus = 35;
-      else if (sales >= 34) volumeBonus = 25;
-      else if (sales >= 28) volumeBonus = 15;
+      if (sales >= 58) volumeBonus = 50;
+      else if (sales >= 46) volumeBonus = 40;
+      else if (sales >= 39) volumeBonus = 35;
+      else if (sales >= 32) volumeBonus = 25;
+      else if (sales >= 26) volumeBonus = 15;
       else if (sales >= 20) volumeBonus = 10;
 
       const qualifiesVolume = effectuation >= 78 && sales >= 28;
+      // Calculate Effectuated Sales
+      const effectuatedSales = Math.round(sales * (effectuation / 100));
+
+      // Updated Sales Bonus using Effectuated Sales
       const perSaleBonus = qualifiesVolume ? (effBonus + volumeBonus) : effBonus + (sales < 34 ? volumeBonus : 0);
-      const salesBonus = sales * perSaleBonus;
+      const salesBonus = effectuatedSales * perSaleBonus;
+
+      // Leaderboard Rank Bonus Mapping
+      const leaderboardPayouts = [750, 600, 500, 400, 350, 300, 250, 200, 150, 100];
+
+      // Get ranks from inputs
+      const salesRank = parseInt(document.getElementById('salesLeaderboard')?.value) || 0;
+      const effectuationRank = parseInt(document.getElementById('effectuationLeaderboard')?.value) || 0;
+
+      // Only ranks 1–10 are valid
+      const salesLeaderboardBonus = (salesRank >= 1 && salesRank <= 10) ? leaderboardPayouts[salesRank - 1] : 0;
+      const effectuationLeaderboardBonus = (effectuationRank >= 1 && effectuationRank <= 10) ? leaderboardPayouts[effectuationRank - 1] : 0;
+
+      // Champions Club Checkbox Bonus
+      const isChampionsClub = document.getElementById('championsClub')?.checked;
+      const championsClubBonus = isChampionsClub ? 1000 : 0;
+
 
       const pdpBonus = pdp * 5;
       const hraBonus = hra * 5;
@@ -213,19 +344,25 @@
       const hospitalRate = hospitalIndemnity >= 15 ? 35 : hospitalIndemnity >= 10 ? 30 : hospitalIndemnity >= 0 ? 25 : 0;
       const hospitalTotal = hospitalIndemnity * hospitalRate;
 
-      const total = salesBonus + pdpBonus + hraBonus + vbcDataBonus + vbcTransferBonus + selectRxTotal + hospitalTotal;
+      const total = salesBonus + pdpBonus + hraBonus + vbcDataBonus + vbcTransferBonus + selectRxTotal + hospitalTotal + salesLeaderboardBonus + effectuationLeaderboardBonus + championsClubBonus;
+
 
       latestBreakdown =
-        `Effectuation Bonus: $${effBonus}\n` +
-        `Volume Bonus: $${volumeBonus}\n` +
-        `Sales Bonus: ${sales} × $${perSaleBonus} = $${salesBonus.toLocaleString()}\n` +
-        `PDP Bonus: ${pdp} × $5 = $${pdpBonus.toLocaleString()}\n` +
-        `HRA Bonus: ${hra} × $5 = $${hraBonus.toLocaleString()}\n` +
-        `VBC Data Bonus: ${vbcData} × $10 = $${vbcDataBonus.toLocaleString()}\n` +
-        `VBC Transfer Bonus: ${vbcTransfer} × $25 = $${vbcTransferBonus.toLocaleString()}\n` +
-        `Select RX Bonus: ${selectRX} × $${selectRxRate} = $${selectRxTotal.toLocaleString()}\n` +
-        `Hospital Indemnity Bonus: ${hospitalIndemnity} × $${hospitalRate} = $${hospitalTotal.toLocaleString()}\n\n` +
-        `Total Commission: $${total.toLocaleString()}`;
+      `Effectuation Bonus: $${effBonus}\n` +
+      `Volume Bonus: $${volumeBonus}\n` +
+      `Effectuated Sales: ${sales} × ${effectuation}% = ${effectuatedSales}\n` +
+      `Sales Bonus: ${effectuatedSales} × $${perSaleBonus} = $${salesBonus.toLocaleString()}\n` +
+      `PDP Bonus: ${pdp} × $5 = $${pdpBonus.toLocaleString()}\n` +
+      `HRA Bonus: ${hra} × $5 = $${hraBonus.toLocaleString()}\n` +
+      `VBC Data Bonus: ${vbcData} × $10 = $${vbcDataBonus.toLocaleString()}\n` +
+      `VBC Transfer Bonus: ${vbcTransfer} × $25 = $${vbcTransferBonus.toLocaleString()}\n` +
+      `Select RX Bonus: ${selectRX} × $${selectRxRate} = $${selectRxTotal.toLocaleString()}\n` +
+      `Hospital Indemnity Bonus: ${hospitalIndemnity} × $${hospitalRate} = $${hospitalTotal.toLocaleString()}\n\n` +
+      `Sales Leaderboard Bonus (Rank ${salesRank || "N/A"}): $${salesLeaderboardBonus.toLocaleString()}\n` +
+      `Effectuation Leaderboard Bonus (Rank ${effectuationRank || "N/A"}): $${effectuationLeaderboardBonus.toLocaleString()}\n\n` +
+      `Champions Club Bonus: $${championsClubBonus.toLocaleString()}\n\n` +
+      `Total Bonus: $${total.toLocaleString()}`;
+
 
       document.getElementById('total').textContent = latestBreakdown;
     }
@@ -239,7 +376,7 @@
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'May2025_Commission_Summary.txt';
+      link.download = 'June_Bonus_Summary.txt';
       link.click();
       URL.revokeObjectURL(url);
     }
