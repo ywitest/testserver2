@@ -515,19 +515,34 @@
     }
 
     // POPUP LOGIC
-    window.addEventListener('DOMContentLoaded', function() {
+    function showNoticePopup() {
+      var popup = document.getElementById('noticePopup');
+      if (popup) popup.style.display = 'flex';
+    }
+    function hideNoticePopup() {
+      var popup = document.getElementById('noticePopup');
+      if (popup) popup.style.display = 'none';
+    }
+
+    function setupNoticePopup() {
       var popup = document.getElementById('noticePopup');
       var closeBtn = document.getElementById('closePopupBtn');
-      popup.style.display = 'flex';
-      closeBtn.onclick = function() {
-        popup.style.display = 'none';
-      };
+      if (!popup || !closeBtn) return;
+      closeBtn.onclick = hideNoticePopup;
       document.addEventListener('keydown', function(e){
-        if (e.key === 'Escape' && popup.style.display !== 'none') popup.style.display = 'none';
+        if (e.key === 'Escape' && popup.style.display !== 'none') hideNoticePopup();
       });
       popup.addEventListener('click', function(e){
-        if(e.target === popup) popup.style.display = 'none';
+        if(e.target === popup) hideNoticePopup();
       });
+    }
+
+    // Ensure popup shows on initial load and on back/forward nav
+    window.addEventListener('DOMContentLoaded', function() {
+      setupNoticePopup();
+    });
+    window.addEventListener('pageshow', function(event) {
+      showNoticePopup();
     });
     // END POPUP LOGIC
   </script>
